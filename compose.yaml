@@ -1,0 +1,30 @@
+﻿version: '3.8'
+
+services:
+  secretly:
+    image: secretly
+    build:
+      context: .
+      dockerfile: Secretly/Dockerfile
+    ports:
+      - "8080:8080" # Порт для HTTP
+      - "8081:8081" # Порт для HTTPS
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=SecretlyDb;User Id=sa;Password=Secretly_Str0ng_Pass!123;TrustServerCertificate=True;
+    depends_on:
+      - sqlserver
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: secretly_db
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Secretly_Str0ng_Pass!123
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+
+volumes:
+  sqlserver_data:
