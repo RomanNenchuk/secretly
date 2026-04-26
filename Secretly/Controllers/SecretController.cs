@@ -1,6 +1,4 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Secretly.Models;
 using Secretly.Data;
 using Secretly.Models.DTOs.Secrets;
 using Secretly.Models.Entities;
@@ -48,11 +46,5 @@ public class SecretController : Controller
     {
         // Тут ми пізніше додамо логіку "атомарного читання та видалення"
         return View(); // Поверне Views/Secret/ViewSecret.cshtml
-    }
-    
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }
