@@ -2,6 +2,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Secretly.Data;
+using Secretly.Services.BackgroundJobs;
+using Secretly.Services.Implementations;
+using Secretly.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +13,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddHostedService<SecretCleanupWorker>();
+builder.Services.AddScoped<ISecretService, SecretService>();
 
 var app = builder.Build();
 
