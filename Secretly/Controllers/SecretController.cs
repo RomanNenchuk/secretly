@@ -1,17 +1,18 @@
+// Controllers/SecretController.cs
 using Microsoft.AspNetCore.Mvc;
-using Secretly.Data;
 using Secretly.Models.DTOs.Secrets;
-using Secretly.Models.Entities;
+using Secretly.Services;
+using Secretly.Services.Interfaces;
 
 namespace Secretly.Controllers;
 
 public class SecretController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ISecretService _secretService;
 
-    public SecretController(ApplicationDbContext context)
+    public SecretController(ISecretService secretService)
     {
-        _context = context;
+        _secretService = secretService;
     }
 
     [HttpGet("/")]
@@ -27,24 +28,31 @@ public class SecretController : Controller
         {
             return BadRequest(new { error = "Content cannot be empty." });
         }
-
-        var secretNote = new SecretNote
+        
+        var isBase64 = System.Text.RegularExpressions.Regex.IsMatch(
+            request.EncryptedContent, 
+            @"^[a-zA-Z0-9\+/]*={0,2}$"
+        );
+        
+        if (!isBase64)
         {
-            Id = Guid.NewGuid(),
-            EncryptedContent = request.EncryptedContent,
-            CreatedAt = DateTime.UtcNow
-        };
+            return BadRequest(new { error = "Invalid data format. Nice try, hacker!" });
+        }
 
-        _context.SecretNotes.Add(secretNote);
-        await _context.SaveChangesAsync();
-
-        return Json(new { id = secretNote.Id });
+        var id = await _secretService.CreateSecretAsync(request.EncryptedContent);
+        return Json(new { id });
     }
 
     [HttpGet("/secret/{id:guid}")]
     public async Task<IActionResult> ViewSecret(Guid id)
     {
-        // Тут ми пізніше додамо логіку "атомарного читання та видалення"
-        return View(); // Поверне Views/Secret/ViewSecret.cshtml
+        var secretNote = await _secretService.GetAndDeleteSecretAsync(id);
+        
+        if (secretNote == null)
+        {
+            return View("NotFound");
+        }
+        
+        return View(secretNote);
     }
 }
