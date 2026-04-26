@@ -1,5 +1,38 @@
 bin/
 obj/
-/packages/
+packages/
+*.nupkg
+*.snupkg
+
+# ==============================
+# JetBrains Rider / ReSharper
+# ==============================
+.idea/
+*.sln.iml
 riderModule.iml
-/_ReSharper.Caches/
+_ReSharper.Caches/
+
+*.DotSettings.user
+
+# ==============================
+# Visual Studio
+# ==============================
+.vs/
+*.user
+
+# ==============================
+# OS / System (Linux, macOS, Windows)
+# ==============================
+.DS_Store
+Thumbs.db
+*~
+
+.env
+
+# Файли бази даних SQLite (якщо раптом вирішиш змінити БД для тестів)
+*.db
+*.db-shm
+*.db-wal
+
+appsettings.json
+appsettings.Development.json

@@ -2,22 +2,30 @@
 
 services:
   secretly:
-    image: secretly
-    build:
-      context: .
-      dockerfile: Secretly/Dockerfile
+    # Замість збірки з Dockerfile, ми беремо готовий образ із SDK (бо нам потрібен компілятор для Hot Reload)
+    image: mcr.microsoft.com/dotnet/sdk:8.0
+    container_name: secretly_app_dev
+    # Вказуємо, де ми будемо працювати всередині контейнера
+    working_dir: /app/Secretly
+    # Команда, яка запускає відстеження змін у файлах
+    command: dotnet watch run --urls "http://0.0.0.0:8080"
     ports:
-      - "8080:8080" # Порт для HTTP
-      - "8081:8081" # Порт для HTTPS
+      - "8080:8080"
+    volumes:
+      # НАЙГОЛОВНІШЕ: Прокидаємо твою локальну папку з кодом всередину контейнера
+      - .:/app
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=SecretlyDb;User Id=sa;Password=Secretly_Str0ng_Pass!123;TrustServerCertificate=True;
+      # Змушує dotnet watch використовувати polling для відстеження файлів (важливо для Docker)
+      - DOTNET_USE_POLLING_FILE_WATCHER=1
     depends_on:
       - sqlserver
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: secretly_db
+    # ... (решта налаштувань бази залишається без змін)
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=Secretly_Str0ng_Pass!123
